@@ -1,5 +1,10 @@
 import telebot
-bot = telebot.TeleBot('1686208190:AAFhWf0SMuGXHTTOP9C90CIeml9cKtPeEWo')
+import os
+
+PORT = int(os.environ.get('PORT', 5000))
+TOKEN = '1686208190:AAFhWf0SMuGXHTTOP9C90CIeml9cKtPeEWo'
+
+bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
@@ -14,3 +19,5 @@ def get_text_messages(message):
 
 
 bot.polling(none_stop=True)
+#bot.start_webhook(listen="0.0.0.0", port=int(PORT), url_path=TOKEN)
+#bot.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + TOKEN)
