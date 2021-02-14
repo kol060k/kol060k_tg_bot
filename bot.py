@@ -4,7 +4,29 @@ import re
 from PIL import Image
 import urllib
 
-import strings  # Немного полезных строк, используемых в коде
+import strings  # Several long strings that are sent by bot
+
+### Functions of image receiving and sending, which are often used in code
+def get_img(message):
+    file_id = message.photo[-1].file_id
+    file_info = bot.get_file(file_id)
+    image_data = bot.download_file(file_info.file_path)
+    img = Image.open(Image.io.BytesIO(image_data))
+    return img
+
+# Looks like it's OK to send just PIL Image with bot.send_photo
+#def send_img(img, user_id, text=None):
+#    img_data = img
+#    bio = Image.io.BytesIO()
+#    bio.name = 'image.jpeg'
+#    img_data.save(bio, 'JPEG')
+#    bio.seek(0)
+#    if text:
+#        bot.send_photo(user_id, bio, text)
+#    else:
+#        bot.send_photo(user_id, bio)
+
+
 
 PORT = int(os.environ.get('PORT', 5000))
 TOKEN = '1686208190:AAFhWf0SMuGXHTTOP9C90CIeml9cKtPeEWo'
@@ -13,7 +35,8 @@ style_img = None
 
 bot = telebot.TeleBot(TOKEN)
 
-########## Приветствие пользователя ##########
+
+########## User greeting ##########
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -32,7 +55,7 @@ def send_welcome(message):
     bot.send_message(message.from_user.id, strings.welcome_string_2)
 
 
-########## Загрузка и показ Style Image ##########
+########## Set and show the Style Image ##########
 
 @bot.message_handler(commands=['show_style_img'])
 def show_style_img(message):
@@ -49,35 +72,24 @@ def set_style_img(message):
 def get_style_img(message):
     global style_img
     try:
-        file_id = message.photo[-1].file_id
-        file_info = bot.get_file(file_id)
-        image_data = bot.download_file(file_info.file_path)
-        img = Image.open(Image.io.BytesIO(image_data))
-        style_img = img
+        style_img = get_img(message)
         bot.send_message(message.from_user.id, 'Изображение стиля установлено!')
     except Exception as e:
         bot.reply_to(message, strings.error_message)
 
 
+########## Get, transform and send back Content Image ##########
 
 @bot.message_handler(content_types=['photo'])
 def get_photo_message(message):
-    #Получение
-    file_id = message.photo[-1].file_id
-    file_info = bot.get_file(file_id)
-    image_data = bot.download_file(file_info.file_path)
-    img = Image.open(Image.io.BytesIO(image_data))
-
-    #Отправка
-    img_data = img
-    bio = Image.io.BytesIO()
-    bio.name = 'image.jpeg'
-    img_data.save(bio, 'JPEG')
-    bio.seek(0)
-    bot.send_photo(message.from_user.id, photo=bio)
+	if style_img:
+		img = get_img(message)
+		bot.send_photo(message.from_user.id, img, 'Возвращаю Вашу картинку')
+	else:
+		bot.send_message(message.from_user.id, 'Изображение стиля не установлено! Используйте /set_style_img')
 
 
-########## Прочее общение бота с пользователем ##########
+########## Pointless communication with user :) ##########
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
     if message.text.lower() == 'привет':
