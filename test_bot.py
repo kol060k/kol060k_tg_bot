@@ -2,7 +2,7 @@ import telebot
 import os
 import re
 
-import strings.py # Немного полезных строк, используемых в коде
+from strings import * # Немного полезных строк, используемых в коде
 
 PORT = int(os.environ.get('PORT', 5000))
 TOKEN = '1686208190:AAFhWf0SMuGXHTTOP9C90CIeml9cKtPeEWo'
@@ -18,7 +18,7 @@ def send_welcome(message):
 def get_text_messages(message):
     if message.text.lower() == 'привет':
         bot.send_message(message.from_user.id, 'Привет!')
-    elif re.findall(forbidden_strings, message.text.lower()):
+    elif re.findall(forbidden_words, message.text.lower()):
         bot.send_message(message.from_user.id, 'Мат в боте запрещён!')
     else:
         bot.send_message(message.from_user.id, 'Не понимаю, что это значит.')
