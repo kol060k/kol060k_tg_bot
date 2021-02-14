@@ -8,8 +8,9 @@ import torchvision.transforms as transforms
 import strings  # Several long strings that are sent by bot
 
 import NST_class # File with NST model functions and necessary imports
+print('Model creation started')
 model = NST_class.NST()
-print('Model created')
+print('Model successfully created')
 
 ### Functions of image receiving and sending, which are often used in code
 def get_img(message):
