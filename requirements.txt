@@ -4,6 +4,7 @@ idna==2.10
 pyTelegramBotAPI==3.7.6
 requests==2.25.1
 urllib3==1.26.3
+torch==1.7.1+cpu torchvision==0.8.2+cpu torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
 https://download.pytorch.org/whl/cpu/torch-1.7.1%2Bcpu-cp36-cp36-linux_x86_64.whl
 https://download.pytorch.org/whl/cpu/torchvision-0.8.2%2Bcpu-cp36-cp36-linux_x86_64.whl
 https://download.pytorch.org/whl/torchaudio-0.7.2-cp36-cp36-linux_x86_64.whl
