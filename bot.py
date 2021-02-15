@@ -134,7 +134,7 @@ def del_2nd_style_img(message):
 @bot.message_handler(content_types=['photo'])
 def get_photo_message(message):
 	if style_img_1:
-#		try:
+		try:
 			content_img = get_img(message)
 			content_img = loader(content_img).unsqueeze(0)
 			input_img = content_img.clone()
@@ -147,8 +147,8 @@ def get_photo_message(message):
 			output = output.squeeze(0)
 			output = unloader(output)
 			bot.send_photo(message.from_user.id, output, 'Ваше преобразованное изображение!')
-#		except Exception as e:
-#			bot.reply_to(message, strings.error_message)
+		except Exception as e:
+			bot.reply_to(message, strings.error_message)
 	else:
 		bot.send_message(message.from_user.id, 'Изображение стиля не установлено! Используйте /set_style_img')
 
