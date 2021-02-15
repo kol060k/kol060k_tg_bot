@@ -36,9 +36,9 @@ def get_img(message):
 ### Image transformers: PIL <=> Tensor
 imsize = 256 
 loader = transforms.Compose([
-    transforms.Resize(imsize),  # нормируем размер изображения
-    transforms.CenterCrop(imsize),
-    transforms.ToTensor()])  # превращаем в удобный формат
+	transforms.Resize(imsize),  # нормируем размер изображения
+	transforms.CenterCrop(imsize),
+	transforms.ToTensor()])  # превращаем в удобный формат
 
 unloader = transforms.ToPILImage() # тензор в кратинку
 
@@ -80,9 +80,11 @@ def send_welcome(message):
 @bot.message_handler(commands=['show_style_img'])
 def show_style_img(message):
 	if style_img_1:
-		bot.send_photo(message.from_user.id, photo=style_img_1)
+		bot.send_photo(message.from_user.id, style_img_1, 'Основное изображение стиля')
+		if style_img_2:
+			bot.send_photo(message.from_user.id, style_img_2, 'Второе изображение стиля')
 	else:
-		bot.reply_to(message, 'Style Image не определено')
+		bot.reply_to(message, 'Style Image не определено. Используйте /set_style_img')
 
 @bot.message_handler(commands=['set_style_img'])
 def set_style_img(message):
@@ -98,6 +100,33 @@ def get_style_img(message):
 		bot.send_message(message.from_user.id, 'Изображение стиля установлено!\nТеперь Вы можете прикреплять изображения для преобразования!')
 	except Exception as e:
 		bot.reply_to(message, strings.error_message)
+		
+@bot.message_handler(commands=['set_2nd_style_img'])
+def set_2nd_style_img(message):
+	if style_img_1:
+		msg = bot.send_message(message.from_user.id, 'Прикрепите, пожалуйста, второе style image')
+		bot.register_next_step_handler(msg, get_2nd_style_img)
+	else:
+		msg = bot.send_message(message.from_user.id, 'Ещё не установлено первое изображение стиля. Прикрепите, пожалуйста, его')
+		bot.register_next_step_handler(msg, get_style_img)
+
+def get_2nd_style_img(message):
+	global style_img_2
+	global style_img_2_tensor
+	try:
+		style_img_2 = get_img(message)
+		style_img_2_tensor = loader(style_img_2).unsqueeze(0)
+		bot.send_message(message.from_user.id, 'Изображение второго стиля установлено!\nТеперь Вы можете прикреплять изображения для преобразования!')
+	except Exception as e:
+		bot.reply_to(message, strings.error_message)
+		
+@bot.message_handler(commands=['del_2nd_style_img'])
+def del_2nd_style_img(message):
+	global style_img_2
+	global style_img_2_tensor
+	style_img_2 = None
+	style_img_2_tensor = None
+	msg = bot.send_message(message.from_user.id, 'Второй стиль удалён')
 
 
 ########## Get, transform and send back Content Image ##########
@@ -110,7 +139,10 @@ def get_photo_message(message):
 			content_img = loader(content_img).unsqueeze(0)
 			input_img = content_img.clone()
 			bot.send_message(message.from_user.id, 'Изображение получено, ожидайте')
-			output = model.run_style_transfer(content_img, style_img_1_tensor, input_img)
+			if style_img_2:
+				output = model.run_style_transfer(content_img, style_img_1_tensor, input_img, style_img_2=style_img_2_tensor)
+			else:
+				output = model.run_style_transfer(content_img, style_img_1_tensor, input_img)
 			output = output.cpu().clone()
 			output = output.squeeze(0)
 			output = unloader(output)

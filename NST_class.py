@@ -22,7 +22,8 @@ class NST:
 		self.cnn_normalization_std = torch.tensor([0.229, 0.224, 0.225]).to(self.device)
 		self.content_layers = ['conv_4'] # Список, показывающий после каких слоёв вставлять вычисление content loss
 		self.style_layers = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5'] # Список, показывающий после каких слоёв вставлять вычисление style loss
-		self.cnn = models.vgg19(pretrained=True).features.to(self.device).eval()
+		#self.cnn = models.vgg19(pretrained=True).features.to(self.device).eval()
+		self.cnn = torch.load('vgg19_cutted.pth').to(self.device).eval()
 
 	##### Ниже идёт код, честно скопированный с домашки по NST #####
 	#####(немного cкорректированный для использования в классе)#####
@@ -135,9 +136,9 @@ class NST:
 		content_img = content_img.to(self.device, torch.float)
 		style_img_1 = style_img_1.to(self.device, torch.float)
 		input_img = input_img.to(self.device, torch.float)
-		if style_img_2:
+		if style_img_2 != None:
 			style_img_2 = style_img_2.to(self.device, torch.float)
-		if mask:
+		if mask != None:
 			mask = mask.to(self.device, torch.float)
 			
 		"""Run the style transfer."""
